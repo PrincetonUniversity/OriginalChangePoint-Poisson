@@ -205,10 +205,7 @@ int main(int argc, char *argv[])
         traj[N].dt = dt;
         traj[N].time = T;
         traj[N].value = 0.0; // this is an auxiliary storage space (not used in cp)
-      } else {
-	printf( "Input error.\n" );
-	exit(1);
-      }
+      } 
     }
     fclose( fpin );
     N--;                                        // take care of overshot data

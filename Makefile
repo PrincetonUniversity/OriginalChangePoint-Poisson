@@ -64,6 +64,15 @@ ifeq ($(strip $(OSTYPE)),darwin17)
   # hard-coded static lib location
   STATICLIB = /opt/local/lib/libgslcblas.a /opt/local/lib/libgsl.a
 endif
+ifeq ($(strip $(OSTYPE)),darwin19)
+  ########## Mac OS X 10.15 - Darwin 19 ##########
+  # The directives assume the use of gsl installation using mac port.
+  PLATFORM = Darwin
+  INCDIRFLAG = -I/opt/local/include
+  LIBDIRFLAG = -L/opt/local/lib
+  # hard-coded static lib location
+  STATICLIB = /opt/local/lib/libgslcblas.a /opt/local/lib/libgsl.a
+endif
 ifeq ($(strip $(OSTYPE)),linux-gnu)
   ########## Linux - linux-gnu ##########
   PLATFORM = Linux
