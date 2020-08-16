@@ -1,12 +1,15 @@
 /***************************************************************************
-                          AddCPNode.c  -  description
+                         AddCPNode.c  -  description
                              -------------------
-    begin                : Tue Jan 27 2004
-    copyright            : (C) 2004-2018 by Haw Yang
-    email                : hawyang@princeton.edu
- ***************************************************************************/
+    begin coding                : Tue Jan 27 14:25:30 PST 2004
+    peer-reviewed publication   : J. Phys. Chem. B, 109, 617-628 (2005)
+    code initial public release : 2020
+    copyright                   : © Haw Yang 2020
+    email                       : hawyang@princeton.edu
+***************************************************************************/
 
-// 20040325: (HY) modify to implement left- and right-bound confidence intervals
+// Change log (for public release):
+// 20200811: (HY) Start code clean up for v2.00 initial public release.
  
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,7 +24,7 @@ enum bool           *h;
 {
   struct changepoint *p1, *p2;
 
-  if (*p == NULL) {                             // Not in tree, insert it
+  if (*p == NULL) {                           // Not in tree, insert it
     (*p) = (struct changepoint *) malloc(sizeof(struct changepoint));
     *h = true;
     (*p)->i = k;        
@@ -33,7 +36,7 @@ enum bool           *h;
     }
   else if ( k < (*p)->i ) {
     AddCPNode(k,kl,kr,&((*p)->left),h);
-    if (*h) {                                   // left branch has grown higher
+    if (*h) {                                 // left branch has grown higher
       switch ((*p)->bal) {
         case 1:
           (*p)->bal = 0;
@@ -42,15 +45,15 @@ enum bool           *h;
         case 0:
           (*p)->bal = -1;
           break;
-        case -1:                                // Rebalance
+        case -1:                              // Rebalance
           p1 = (*p)->left;
-          if (p1->bal == -1) {                  // Single LL rotation
+          if (p1->bal == -1) {                // Single LL rotation
             (*p)->left = p1->right;
             p1->right = *p;
             (*p)->bal = 0;
             *p = p1;
             }
-//          else {                                // Double LR rotation
+//          else {                            // Double LR rotation
 //            p2 = p1->right;
 //            p1->right = p2->left;
 //            p2->left = p1;
@@ -68,7 +71,7 @@ enum bool           *h;
     } // if ( [.] < p->Key )
   else if ( k > (*p)->i ) {
     AddCPNode(k,kl,kr,&((*p)->right),h);
-    if (*h) {                                   // right branch has grown higher
+    if (*h) {                                 // right branch has grown higher
       switch ((*p)->bal) {
         case -1:
           (*p)->bal = 0;
@@ -77,16 +80,16 @@ enum bool           *h;
         case 0:
           (*p)->bal = 1;
           break;
-        case 1:                                 // Rebalance
+        case 1:                               // Rebalance
           p1 = (*p)->right;
           if(p1->left==NULL) break;
-          if (p1->bal == 1) {                   // Single RR rotation
+          if (p1->bal == 1) {                 // Single RR rotation
             (*p)->right = p1->left;
             p1->left = (*p);
             (*p)->bal = 0;
             (*p) = p1;
             }
-          else {                                // Double RL rotation
+          else {                              // Double RL rotation
             p2 = p1->left;
             p1->left = p2->right;
             p2->right = p1;

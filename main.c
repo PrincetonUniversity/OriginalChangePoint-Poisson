@@ -1,54 +1,15 @@
 /***************************************************************************
-                          main.c  -  description
+                            main.c  -  description
                              -------------------
-    begin                : Tue Jan 27 14:25:30 PST 2004
-    copyright            : (C) 2004-2018 by Haw Yang
-    email                : hawyang@princeton.edu
+    begin coding                : Tue Jan 27 14:25:30 PST 2004
+    peer-reviewed publication   : J. Phys. Chem. B, 109, 617-628 (2005)
+    code initial public release : 2020
+    copyright                   : © Haw Yang 2020
+    email                       : hawyang@princeton.edu
 ***************************************************************************/
 
-// To-do list:
-//   1. The limiting step appears to be the sequential examination procedure.
-//      Using a two-way chain structure may help to speed up the process.
-
-// Change log:
-// 20120512: (HY) Filed as viersion 1.12
-//                1. revised the changepoint.h file for versioning
-//                2. fixed the email address
-//                3. implement a bug fix credited to Arno van Amersfoort
-//                4. fixed the printf size_t specifier that causes compile warning
-// 20080122: (HY) Filed as version 1.1
-//                To-do: Clarify Lucas's revision.
-// 20080121: (HY) Start developing binary release. To-Do List:
-//                1. Remove 'Numerical Recipes' subroutines (done)
-//                   dmatrix()
-//                   imatrix()
-//                2. Remove drand48() and related calls (not coded)
-//                3. Write a suitable Makefile (done)
-//                4. Implement generic input format in which only the first
-//                   column is processed. (done)
-// 20060804: (HY) Start to include all critical values in a header file,
-//                critical_values.h (done)
-//                Generalize input format so that it will take the first number
-//                as integer formatted inter-photon duration regardless of the
-//                number of other time-stamped variables.
-// 20060708: (HY) TODO: include all critical regions into header files.
-// 20060219: (HY) incorporated Lucas's revision and rebuild into a win32
-//                platform
-// 20040326: (HY) 0.96-alpha release. include uncertainties in time.
-//                AHCluster.c, changepoint.h
-// 20040326: (HY) 0.95-alpha release. Clean up the code a bit, take a snap shot.
-// 20040325: (HY) Start implementing Henderson's statistic
-// 20040322: (HY) Change Point code snapshot.
-// 20040203: (HY) Fixed a bug in BIC Cluster---
-//                the regulatory term should be log N.
-// 20040202: (HY) Checking EMCluster output, there seems to be a bug in
-//                calculating the prosterior probability
-// 20040202: (HY) It turns out that the critical region was not calculated
-//                correctly.
-//                Fixed that bug.
-// 20040201: (HY) Version 0.9-alpha complete
-//           Initial test indicates that spurious points are not removed
-//           Suspect that the power of selection is not calculated correctly.
+// Change log (for public release):
+// 20200811: (HY) Start code clean up for v2.00 initial public release.
 //
 
 #ifdef HAVE_CONFIG_H
@@ -83,7 +44,7 @@ int main(int argc, char *argv[])
   size_t        cpr;                            // FindCP right end
   size_t        cp1;
   double        T;                              // total length in time
-  int           Ngmax;                         // maximum number of states
+  int           Ngmax;                          // maximum number of states
   int           Ncp=0;                          // total number of change points
   int           Ncpdlt=0;                       // total number of spurious change points deleted
   int           Ny=0;                           // number of intensity levels
@@ -95,7 +56,7 @@ int main(int argc, char *argv[])
   struct em_group Yem;                          // expectation-maximization classification
   time_t        time0, time1;                   // variables for timing
   int           i,j;                            // dummy index
-  size_t        ui;								// dummy index
+  size_t        ui;                             // dummy index
   int           trace=0;                        // debug flag
   double        *bic;                           // Bayesian information number
   double        *ta=NULL;                       // critical region threshold for change point detection
@@ -217,7 +178,7 @@ int main(int argc, char *argv[])
     // file does not exist, exit with error
     printf( "File [%s] does not exist. Exiting ...\n", in_name );
     exit(1);
-    }
+  }
   else {
     // file exists. start reading in data and correlate
     printf( "] Reading in data file ...\n");
@@ -235,27 +196,32 @@ int main(int argc, char *argv[])
       //      inter-photon-integer(2) val1(2) val2(2) val3(2)
       //               :                 :       :      :
       //      inter-photon-integer(N) val1(N) val2(N) val3(N)
-      fgets(buffer,65535,fpin);
-      N++;                        // keep track of # data points
-      dt = delta_t * (double) strtol( buffer, endptr, 10 );
-      T += dt;
-      traj = (struct data *) realloc(traj,(N+1)*sizeof(struct data));
-      traj[N].dt = dt;
-      traj[N].time = T;
-      traj[N].value = 0.0; // this is an auxiliary storage space (not used in cp)
+      if (fgets(buffer,65535,fpin)!=NULL) { 
+	// (HY)-20200816 fixed a potential compilation error by adding this IF-ELSE clause
+        N++;                        // keep track of # data points
+        dt = delta_t * (double) strtol( buffer, endptr, 10 );
+        T += dt;
+        traj = (struct data *) realloc(traj,(N+1)*sizeof(struct data));
+        traj[N].dt = dt;
+        traj[N].time = T;
+        traj[N].value = 0.0; // this is an auxiliary storage space (not used in cp)
+      } else {
+	printf( "Input error.\n" );
+	exit(1);
       }
+    }
     fclose( fpin );
     N--;                                        // take care of overshot data
     T -= dt;                                    //
     printf( "  Total of %lu photons, %.3lf seconds read in.\n", (long unsigned int) N, T);
-    }
+  }
 
   /******************************************************
   * Find change points using log-likelihood ratio tests *
   ******************************************************/
-  // 20040325-HY: Need to take care of situations when N > Na
-  //              consider both Na > N and N > Na cases
+  // 20040325-HY
   // 20040128-HY
+
   printf( "] Finding change points recursively ...\n");
   time0 = time((time_t *)NULL);
   if ( Na > N )
@@ -291,7 +257,7 @@ int main(int argc, char *argv[])
   *************************************************************************/
   // 20040128-HY
 
-//  trace = 1;                                    // set trace = 1 to turn debugging output
+//trace = 1;                                  // set trace = 1 to turn debugging output
   printf( "] Examining %i change points sequentially ...\n",Ncp);
   time0 = time((time_t *)NULL);
   CheckCP( &cp_root, traj, alpha, beta, N, &Ncpdlt, trace, ta, ca, Na );
@@ -379,6 +345,12 @@ int main(int argc, char *argv[])
   // up (or down) transition is not picked up. In these cases, we remove this change
   // point regardless of its selection power. After this refinement, the number of
   // sections (Ny) will become dependent of the number of groups.
+  //
+  // 20200815-HY
+  // Comment: These subroutines tend to be time consuming. Activate when needed, e.g.,
+  //          when extremely precise accounting of number and position of change points
+  //          is critical, as opposed to statistical precision.
+
 /*
   printf( "] Refining E-M clustering results by merging sequentially repeating levels ...\n");
   time0 = time((time_t *)NULL);

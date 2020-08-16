@@ -1,22 +1,20 @@
 /***************************************************************************
                           FindCP.c  -  description
                              -------------------
-    begin                : Tue Jan 27 2004
-    copyright            : (C) 2004-2018 by Haw Yang
-    email                : hawyang@princeton.edu
- ***************************************************************************/
+    begin coding                : Tue Jan 27 14:25:30 PST 2004
+    peer-reviewed publication   : J. Phys. Chem. B, 109, 617-628 (2005)
+    code initial public release : 2020
+    copyright                   : © Haw Yang 2020
+    email                       : hawyang@princeton.edu
+***************************************************************************/
+
+// Change log (for public release):
+// 20200811: (HY) Start code clean up for v2.00 initial public release.
+//
 // References:
-// 1.
-// 2. "A problem with the likelihood ratio test for a change-point hazard rate model,"
+// 1. "A problem with the likelihood ratio test for a change-point hazard rate model,"
 //    Robin Henderson, Biometrika, 77, 835-843 (1990).
 //
-// Change Log
-// 20180220: (HY) Fixed a potential bug at line 180.
-// 20040525: (LP) Add branch to help detect burst.
-// 20040325: (HY) Implement the use of Henderson's statistic, Ref. [2] using exact
-//                distribution computed numerically.
-//           (HY) Removed the part that computes approximate power
-// 20040206: (HY) implement correction to likelihood ratio test Ref. [2].
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -48,7 +46,7 @@ int                 rc;				// recurse on failure (0,1)
 {
   size_t            n,i,k,k_max;
   size_t            LB, RB;                     // left and right bounds of confidence region
-  size_t            cp2=0, cp1=0, cp_max;                // largest change point in absolute index
+  size_t            cp2=0, cp1=0, cp_max;       // largest change point in absolute index
   double            T, kL, iL, nL, term, Vk;
   double            critical_region, *llrt, llrt_max=0.0;
   double            *Tk, lambda0, *lambda1, *lambda2;

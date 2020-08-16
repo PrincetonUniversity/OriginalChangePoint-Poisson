@@ -1,12 +1,9 @@
-# Makefile for changepoint
+# Makefile for changepoint © Haw Yang 2020
 #
 # Haw Yang
 # Princeton University
 # 
-# 20180220: (HY) revised Makefile for OS X 10.12 and OS X 10.13
-# 20120512: (HY) revised Makefile for OS X 10.7, as well as compatibility with MinGW 4.6.2
-# 20081221: (HY) revise Makefile so that it works with Mac OS X better
-# 20080121: (HY) first working version 
+# 20200816: (HY) prepare for v2.0 publich release
 
 PROGRAM = changepoint.exe
 SOURCES = AddCPNode.c AHCluster.c BICCluster.c CheckCP.c DeleteCPNode.c \

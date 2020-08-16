@@ -1,10 +1,15 @@
 /***************************************************************************
-    BICCluster.c  -  Bayesian Information Criteria for number of clusters
+                        BICCluster.c  -  description
                              -------------------
-    begin                : Sun Feb 1 2004
-    copyright            : (C) 2004-2018 by Haw Yang
-    email                : hawyang@princeton.edu
- ***************************************************************************/
+    begin coding                : Tue Jan 27 14:25:30 PST 2004
+    peer-reviewed publication   : J. Phys. Chem. B, 109, 617-628 (2005)
+    code initial public release : 2020
+    copyright                   : © Haw Yang 2020
+    email                       : hawyang@princeton.edu
+***************************************************************************/
+
+// Change log (for public release):
+// 20200811: (HY) Start code clean up for v2.00 initial public release.
 
 #include <stdio.h>
 #include <stdlib.h>
