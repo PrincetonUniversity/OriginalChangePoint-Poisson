@@ -1,65 +1,29 @@
-# Prior-Apprised Unsupervised Learning (PAUL) of curvilinear features
-Implementation of PAUL framwork on curvilinear features. Please cite the associated publication as: Yin, S., Tien, M. & Yang, H. (2020). Prior-Apprised Unsupervised Learning of Sub-Pixel Curvilinear Features in Low Signal-to-Noise Images. <em>Biophys. J.</em>, **118**, 2458-2469.
+# Change Point Analysis of Poisson Time Series
+This code finds the locations of abrupt changes in an otherwise piece-wise constant-level Poisson time series such as a signle-molecule time trace acquired photon by phon. Assuming that there are finite number of constant-level states, it uses Agglomerative Hierarchical clustering followed by Expectation-Maximization clustering to find the most likely level values for a given number of states. It finally uses Bayesian Information Criteria (BIC) to determine the number of states. The development was originally at UC Berkeley (2004-2009) and continues at Princeton University (2009-). The associated publication is: Watkins, L.P. & H. Yang (2004). Detection of Intensity Change Points in Time-Resolved Single Molecule Measurements. <em>J. Phys. Chem. B</em>, **109**, 617-628.
 
 ## Requirements
-The code uses the following toolboxes and versions at the stage of development; earlier versions might also work:
-* 'MATLAB' '9.6'
-* 'Image Processing Toolbox' '10.4' 
-* 'Statistics and Machine Learning Toolbox' '11.5' 
-* 'Parallel Computing Toolbox' '7.0' 
-* 'MATLAB Parallel Server' '7.0'
+This C code requires the GNU Scientific Library (GSL) and has been tested using the gcc compiler on both the OSX and Linux platforms.
 
 ## Syntax
+$ changepoint.exe YourDataFileName TimeBase Alpha CI MaxStates
+
+After having successfully compiled the code, switch to the /Example directory (make a copy of the /Example content first!) and try,
 ```
-batchMTComputation(OutputFileName, image2D, GridSize, NumOfShifts, PSFsigma, pixelSize);
-batchMTComputation(OutputFileName, image2D, GridSize, NumOfShifts, PSFsigma, pixelSize, beta);
-batchMTComputation(OutputFileName, image2D, GridSize, NumOfShifts, PSFsigma, pixelSize, beta, cRatio);
-batchMTComputation(OutputFileName, image2D, GridSize, NumOfShifts, PSFsigma, pixelSize, beta, cRatio, estimatedLp);
-batchMTComputation(OutputFileName, image2D, GridSize, NumOfShifts, PSFsigma, pixelSize, beta, cRatio, estimatedLp, gridPtUnit);
+$ ../changepoint.exe TT4.dat 50e-9 0.05 0.69 5
 ```
 
 ## Input arguments
-* `OutputFileName` — the string that contains the output file name.
-* `image2D` — numeric array of a single input image or cells of numeric arrays of multiple images. The input image needs to be **square** (e.g. 512 x 512 pixels). The pixel values can be 8-bit, 16-bit or double. The image can be grayscale or RGB (will be converted into grayscale in the code).
-* `GridSize` — the side of the sub image used in stage two. It should divide the image side (e.g. for 512 x 512 images, `GridSize` cannot fall out of {1, 2, 4, 8, 16, 32, 64, 128, 256, 512}).
-* `NumOfShifts` — the number of shifts applied in stage two.
-* `PSFsigma` — the standard deviation of the approximated Gaussian point-spread function (PSF), in the unit of micrometers.
-* `pixelSize` — the side of the pixel, in the unit of micrometers.
-* `beta` — the beta parameter in stage one. Default is 0.5. Put `[]` if using the default value.
-* `cRatio` — the ratio between 2c^2 and maximum S^2 in stage one. Default is 2 (c=max(S)). Put `[]` if using the default value.
-* `estimatedLp` — the estimated persistence length of the features to be detected, in the unit of micrometers. Default is 5200. Put `[]` if using the default value.
-* `gridPtUnit` — the grid point density in the final PAUL principal curve, in the unit of pixels. Default is 0.1.
-
+* `TT4.dat` — your data file name.
+* `50e-9` — the time unit of the inter-photon interval entries in the data file, 50 ns in this example.
+* `0.05` — the desired type-I error of change point detection, 5% in this example.
+* `0.69` — the desired confidence level for backeting change point detection, 69% in this example.
+* `5` — the maximum number of intensity states.
 
 ## Output
-The output is saved in a .mat file containing the following variables:
-* `FinalX_central_allGps` (or `FinalX_central_allGps_allIMs`), `FinalY_central_allGps` (or `FinalY_central_allGps_allIMs`) — x and y coordinates of the final PAUL principal curve, in the pixel space.
-* `FinalX_UB95_allGps` (or `FinalX_UB95_allGps_allIMs`), `FinalY_UB95_allGps` (or `FinalY_UB95_allGps_allIMs`) — x and y coordinates of the upper bound of the final PAUL principal curve, in the pixel space.
-* `FinalX_LB95_allGps` (or `FinalX_LB95_allGps_allIMs`), `FinalY_LB95_allGps` (or `FinalY_LB95_allGps_allIMs`) — x and y coordinates of the lower bound of the final PAUL principal curve, in the pixel space.
-* `medium95PercError` (or `medium95PercError_allIMs`) — medians of all 95% bootstrap bounds, in the unit of pixels.
-
-## Example
-
-Run PAUL procedure on an example image ('examples/image1.mat')
-```matlab
->> load('examples/image1.mat');
->> batchMTComputation('example_result',example_image,32,8,0.1376,0.076,[],5,1000);
-```
-
-Plot the result
-```matlab
-load('examples/image1.mat');
-load('examples/image1_result_Division_32x8.mat');
-imagesc(example_image)
-hold on
-for i = 1:length(FinalX_central_allGps)
-    plot(FinalX_central_allGps{i},FinalY_central_allGps{i},'Color',[0.3010, 0.7450, 0.9330],'LineWidth',0.6);
-    plot(FinalX_UB95_allGps{i},FinalY_UB95_allGps{i},'--','Color',[0.9290, 0.6940, 0.1250],'LineWidth',0.5);
-    plot(FinalX_LB95_allGps{i},FinalY_LB95_allGps{i},'--','Color',[0.9290, 0.6940, 0.1250],'LineWidth',0.5);
-end
-```
-![example_image](examples/image1_display.png)
-![example_result](examples/image1_result.png)
-
-
+* `YourDataFileName.cp` — change point in units of data entry indicies, left confidence interval, right confidence interval
+* `YourDataFileName.ah` — agglomerative hierarchical clustering results
+* `YourDataFileName.em.2` — expectation maximization clustering results, 2 states
+* `YourDataFileName.em.n` — expectation maximization clustering results, n states
+* `YourDataFileName.em.MaxStates` — expectation maximization clustering results, MaxStates states
+* `YourDataFileName.bic` — Bayesian information criteria scoring for each number of states
 
